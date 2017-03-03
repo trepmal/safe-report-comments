@@ -222,7 +222,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		 */
 		public function is_enabled() {
 			$enabled = get_option( $this->_plugin_prefix . '_enabled' );
-			if ( $enabled == 1 ) {
+			if ( 1 == $enabled ) {
 				$enabled = true;
 			} else {
 				$enabled = false;
