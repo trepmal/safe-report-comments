@@ -1,33 +1,106 @@
 <?php
-/*
-Plugin Name: Safe Report Comments
-Plugin Script: safe-report-comments.php
-Plugin URI: http://wordpress.org/extend/plugins/safe-report-comments/
-Description: This script gives visitors the possibility to flag/report a comment as inapproriate.
-After reaching a threshold the comment is moved to moderation. If a comment is approved once by a moderator future reports will be ignored.
-Version: 0.4.1
-Author: Thorsten Ott, Daniel Bachhuber, Automattic
-Author URI: http://automattic.com
-*/
+/**
+ * Plugin Name: Safe Report Comments
+ * Plugin Script: safe-report-comments.php
+ * Plugin URI: http://wordpress.org/extend/plugins/safe-report-comments/
+ * Description: This script gives visitors the possibility to flag/report a comment as inapproriate.
+ * After reaching a threshold the comment is moved to moderation. If a comment is approved once by a moderator future reports will be ignored.
+ * Version: 0.4.1
+ * Author: Thorsten Ott, Daniel Bachhuber, Automattic
+ * Author URI: http://automattic.com
+ *
+ * @package Safe_Report_Commments
+ */
 
-if ( !class_exists( "Safe_Report_Comments" ) ) {
+if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 
+	/**
+	 * Safe Report Comments
+	 */
 	class Safe_Report_Comments {
 
+		/**
+		 * Plugin prefix
+		 *
+		 * @var $_plugin_prefix {unknown}.
+		 */
 		private $_plugin_prefix = 'srcmnt';
+
+		/**
+		 * Admin notices
+		 *
+		 * @var $_admin_notices {unknown}.
+		 */
 		private $_admin_notices = array();
+
+		/**
+		 * Nonce key
+		 *
+		 * @var $_nonce_key {unknown}.
+		 */
 		private $_nonce_key     = 'flag_comment_nonce';
+
+		/**
+		 * Auto init
+		 *
+		 * @var $_auto_init {unknown}.
+		 */
 		private $_auto_init     = true;
+
+		/**
+		 * Storage cookie
+		 *
+		 * @var $_storagecookie {unknown}.
+		 */
 		private $_storagecookie = 'sfrc_flags';
 
+		/**
+		 * Plugin url
+		 *
+		 * @var $plugin_url {unknown}.
+		 */
 		public $plugin_url      = false;
 
+		/**
+		 * Thank you message
+		 *
+		 * @var $thank_you_message {unknown}.
+		 */
 		public $thank_you_message       = 'Thank you for your feedback. We will look into it.';
+
+		/**
+		 * Invalid nonce message
+		 *
+		 * @var $invalid_nonce_message {unknown}.
+		 */
 		public $invalid_nonce_message   = 'It seems you already reported this comment. <!-- nonce invalid -->';
+
+		/**
+		 * Invalid values message
+		 *
+		 * @var $invalid_values_message {unknown}.
+		 */
 		public $invalid_values_message  = 'Cheating huh? <!-- invalid values -->';
+
+		/**
+		 * Already flagged message
+		 *
+		 * @var $already_flagged_message {unknown}.
+		 */
 		public $already_flagged_message = 'It seems you already reported this comment. <!-- already flagged -->';
+
+		/**
+		 * Already flagged note
+		 *
+		 * @var $already_flagged_note {unknown}.
+		 */
 		public $already_flagged_note    = '<!-- already flagged -->'; // displayed instead of the report link when a comment was flagged.
 
+		/**
+		 * Filter vars
+		 *
+		 * @var $filter_vars {unknown}.
+		 */
 		public $filter_vars = array(
 			'thank_you_message',
 			'invalid_nonce_message',
