@@ -40,8 +40,8 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		// transient hits will be counted up per ip any time a user flags a comment
 		// this number should be always lower than your threshold to avoid manipulation
 		public $no_cookie_grace    = 3;
-		public $cookie_lifetime    = 604800; // lifetime of the cookie ( 1 week ). After this duration a user can report a comment again
-		public $transient_lifetime = 86400; // lifetime of fallback transients. lower to keep things usable and c
+		public $cookie_lifetime    = WEEK_IN_SECONDS; // lifetime of the cookie ( 1 week ). After this duration a user can report a comment again
+		public $transient_lifetime = DAY_IN_SECONDS; // lifetime of fallback transients. lower to keep things usable and c
 
 		public function __construct( $auto_init=true ) {
 
