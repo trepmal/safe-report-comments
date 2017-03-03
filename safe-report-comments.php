@@ -198,7 +198,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 			$enabled = $this->is_enabled();
 			?>
 			<label for="<?php echo $this->_plugin_prefix; ?>_enabled">
-				<input name="<?php echo $this->_plugin_prefix; ?>_enabled" id="<?php echo $this->_plugin_prefix; ?>_enabled" type="checkbox" value="1" <?php if ( $enabled === true ) echo ' checked="checked"'; ?> />
+				<input name="<?php echo $this->_plugin_prefix; ?>_enabled" id="<?php echo $this->_plugin_prefix; ?>_enabled" type="checkbox" value="1" <?php checked( $enabled ); ?> />
 				<?php _e( "Allow your visitors to flag a comment as inappropriate." ); ?>
 			</label>
 			<?php
