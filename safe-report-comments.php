@@ -619,8 +619,13 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 				return esc_html( $this->already_flagged_note );
 			}
 
-			return apply_filters( 'safe_report_comments_flagging_link', '
-			<span id="' . $result_id . '"><a class="hide-if-no-js" href="javascript:void(0);" onclick="safe_report_comments_flag_comment( \'' . $comment_id . '\', \'' . $nonce . '\', \'' . $result_id . '\');">' . esc_html( $text ) . '</a></span>' );
+			return apply_filters( 'safe_report_comments_flagging_link', sprintf( '<span id="%s"><a class="hide-if-no-js" href="javascript:void(0);" onclick="safe_report_comments_flag_comment( \'%s\', \'%s\', \'%s\');">%s</a></span>',
+				esc_attr( $result_id ),
+				esc_js( $comment_id ),
+				esc_js( $nonce ),
+				esc_js( $result_id ),
+				esc_html( $text )
+			) );
 
 		}
 
