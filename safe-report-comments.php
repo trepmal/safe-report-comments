@@ -22,84 +22,84 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * Plugin prefix
 		 *
-		 * @var $_plugin_prefix {unknown}.
+		 * @var $_plugin_prefix
 		 */
 		private $_plugin_prefix = 'srcmnt';
 
 		/**
 		 * Admin notices
 		 *
-		 * @var $_admin_notices {unknown}.
+		 * @var $_admin_notices
 		 */
 		private $_admin_notices = array();
 
 		/**
 		 * Nonce key
 		 *
-		 * @var $_nonce_key {unknown}.
+		 * @var $_nonce_key
 		 */
 		private $_nonce_key     = 'flag_comment_nonce';
 
 		/**
 		 * Auto init
 		 *
-		 * @var $_auto_init {unknown}.
+		 * @var $_auto_init
 		 */
 		private $_auto_init     = true;
 
 		/**
 		 * Storage cookie
 		 *
-		 * @var $_storagecookie {unknown}.
+		 * @var $_storagecookie
 		 */
 		private $_storagecookie = 'sfrc_flags';
 
 		/**
 		 * Plugin url
 		 *
-		 * @var $plugin_url {unknown}.
+		 * @var $plugin_url
 		 */
 		public $plugin_url      = false;
 
 		/**
 		 * Thank you message
 		 *
-		 * @var $thank_you_message {unknown}.
+		 * @var $thank_you_message
 		 */
 		public $thank_you_message       = 'Thank you for your feedback. We will look into it.';
 
 		/**
 		 * Invalid nonce message
 		 *
-		 * @var $invalid_nonce_message {unknown}.
+		 * @var $invalid_nonce_message
 		 */
 		public $invalid_nonce_message   = 'It seems you already reported this comment. <!-- nonce invalid -->';
 
 		/**
 		 * Invalid values message
 		 *
-		 * @var $invalid_values_message {unknown}.
+		 * @var $invalid_values_message
 		 */
 		public $invalid_values_message  = 'Cheating huh? <!-- invalid values -->';
 
 		/**
 		 * Already flagged message
 		 *
-		 * @var $already_flagged_message {unknown}.
+		 * @var $already_flagged_message
 		 */
 		public $already_flagged_message = 'It seems you already reported this comment. <!-- already flagged -->';
 
 		/**
 		 * Already flagged note
 		 *
-		 * @var $already_flagged_note {unknown}.
+		 * @var $already_flagged_note
 		 */
 		public $already_flagged_note    = '<!-- already flagged -->'; // displayed instead of the report link when a comment was flagged.
 
 		/**
 		 * Filter vars
 		 *
-		 * @var $filter_vars {unknown}.
+		 * @var $filter_vars
 		 */
 		public $filter_vars = array(
 			'thank_you_message',
@@ -117,7 +117,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 * any time a user flags a comment. This number should be always lower than your
 		 * threshold to avoid manipulation.
 		 *
-		 * @var $no_cookie_grace {unknown}.
+		 * @var $no_cookie_grace
 		 */
 		public $no_cookie_grace    = 3;
 
@@ -126,7 +126,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 *
 		 * After this duration a user can report a comment again.
 		 *
-		 * @var $cookie_lifetime {unknown}.
+		 * @var $cookie_lifetime
 		 */
 		public $cookie_lifetime    = WEEK_IN_SECONDS;
 
@@ -135,7 +135,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 *
 		 * Cookie fallback.
 		 *
-		 * @var $transient_lifetime {unknown}.
+		 * @var $transient_lifetime
 		 */
 		public $transient_lifetime = DAY_IN_SECONDS;
 
@@ -296,12 +296,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 			<div id="message" class="updated fade"><h3>Safe Comments:</h3>
 			<?php
 			foreach ( (array) $this->_admin_notices as $notice ) {
-				// @codingStandardsIgnoreStart
-				// @todo: does $notice need escaping?
-				?>
-					<p><?php echo $notice ?></p>
-				<?php
-				// @codingStandardsIgnoreEnd
+				echo '<p>' . esc_html( $notice ) . '</p>';
 			}
 			?>
 			</div>
@@ -426,17 +421,23 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 
 			// check if cookies are enabled and use cookie store.
 			if ( isset( $_COOKIE[ TEST_COOKIE ] ) ) {
-				if ( isset( $_COOKIE[ $this->_storagecookie ] ) ) {
-					$data = $this->unserialize_cookie( $_COOKIE[ $this->_storagecookie ] );
+				if ( isset( $_COOKIE[ $this->_storagecookie ] ) && isset( $this->_storagecookie ) ) {
+					$data = $this->unserialize_cookie(
+						sanitize_text_field( wp_unslash(
+							$_COOKIE[ $this->_storagecookie ]
+						) )
+					);
 					if ( is_array( $data ) && isset( $data[ $comment_id ] ) ) {
 						return true;
 					}
 				}
 			}
 
-
 			// in case we don't have cookies. fall back to transients, block based on IP/User Agent.
-			if ( $transient = get_transient( md5( $this->_storagecookie . $_SERVER['REMOTE_ADDR'] ) ) ) {
+			if (
+				isset( $_SERVER['REMOTE_ADDR'] ) &&
+				$transient = get_transient( md5( $this->_storagecookie . sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) ) )
+			) {
 				if (
 					// check if no cookie and transient is set.
 					 ( ! isset( $_COOKIE[ TEST_COOKIE ] ) && isset( $transient[ $comment_id ] ) ) ||
@@ -458,7 +459,11 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 			$data = array();
 			if ( isset( $_COOKIE[ TEST_COOKIE ] ) ) {
 				if ( isset( $_COOKIE[ $this->_storagecookie ] ) ) {
-					$data = $this->unserialize_cookie( $_COOKIE[ $this->_storagecookie ] );
+					$data = $this->unserialize_cookie(
+						sanitize_text_field( wp_unslash(
+							$_COOKIE[ $this->_storagecookie ]
+						) )
+					);
 					if ( ! isset( $data[ $comment_id ] ) ) {
 						$data[ $comment_id ] = 0;
 					}
@@ -481,12 +486,13 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 				}
 			}
 			// in case we don't have cookies. fall back to transients, block based on IP, shorter timeout to keep mem usage low and don't lock out whole companies.
-			$transient = get_transient( md5( $this->_storagecookie . $_SERVER['REMOTE_ADDR'] ) );
+			$key = md5( $this->_storagecookie . sanitize_text_field( wp_unslash( ( ! empty( $_SERVER['REMOTE_ADDR'] ? $_SERVER['REMOTE_ADDR'] : '' ) ) ) ) );
+			$transient = get_transient( $key );
 			if ( ! $transient ) {
-				set_transient( md5( $this->_storagecookie . $_SERVER['REMOTE_ADDR'] ), array( $comment_id => 1 ), $this->transient_lifetime );
+				set_transient( $key, array( $comment_id => 1 ), $this->transient_lifetime );
 			} else {
 				$transient[ $comment_id ]++;
-				set_transient( md5( $this->_storagecookie . $_SERVER['REMOTE_ADDR'] ), $transient, $this->transient_lifetime );
+				set_transient( $key, $transient, $this->transient_lifetime );
 			}
 
 			$threshold = (int) get_option( $this->_plugin_prefix . '_threshold' );
@@ -517,9 +523,9 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 */
 		private function cond_die( $message ) {
 			if ( isset( $_REQUEST['no_js'] ) && true == (boolean) $_REQUEST['no_js'] ) {
-				wp_die( __( $message ), 'Safe Report Comments Notice', array( 'response' => 200 ) );
+				wp_die( esc_html( $message ), esc_html__( 'Safe Report Comments Notice' ), array( 'response' => 200 ) );
 			} else {
-				die( __( $message ) );
+				die( esc_html( $message ) );
 			}
 		}
 
@@ -527,22 +533,27 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 * Ajax callback to flag/report a comment
 		 */
 		public function flag_comment() {
-			if ( (int) $_REQUEST['comment_id'] != $_REQUEST['comment_id'] || empty( $_REQUEST['comment_id'] ) ) {
-				$this->cond_die( __( $this->invalid_values_message ) );
+			if ( empty( $_REQUEST['comment_id'] ) || (int) $_REQUEST['comment_id'] != $_REQUEST['comment_id'] ) {
+				$this->cond_die( $this->invalid_values_message );
 			}
 
 			$comment_id = (int) $_REQUEST['comment_id'];
 			if ( $this->already_flagged( $comment_id ) ) {
-				$this->cond_die( __( $this->already_flagged_message ) );
+				$this->cond_die( $this->already_flagged_message );
 			}
 
-			$nonce = $_REQUEST['sc_nonce'];
+			if ( isset( $_REQUEST['sc_nonce'] ) ) {
+				$nonce = sanitize_text_field( wp_unslash( $_REQUEST['sc_nonce'] ) );
+			} else {
+				$nonce = '';
+			}
+
 			// checking if nonces help.
 			if ( ! wp_verify_nonce( $nonce, $this->_plugin_prefix . '_' . $this->_nonce_key ) ) {
-				$this->cond_die( __( $this->invalid_nonce_message ) );
+				$this->cond_die( $nonce . $this->invalid_nonce_message );
 			} else {
 				$this->mark_flagged( $comment_id );
-				$this->cond_die( __( $this->thank_you_message ) );
+				$this->cond_die( $this->thank_you_message );
 			}
 
 		}
@@ -555,7 +566,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 * @param string $text {unknown}.
 		 */
 		public function print_flagging_link( $comment_id = '', $result_id = '', $text = 'Report comment' ) {
-			echo $this->get_flagging_link( $comment_id = '', $result_id = '', $text = 'Report comment' );
+			echo wp_kses( $this->get_flagging_link( $comment_id, $result_id, $text ) );
 		}
 
 		/**
@@ -595,11 +606,11 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 			);
 
 			if ( $this->already_flagged( $comment_id ) ) {
-				return __( $this->already_flagged_note );
+				return esc_html( $this->already_flagged_note );
 			}
 
 			return apply_filters( 'safe_report_comments_flagging_link', '
-			<span id="' . $result_id . '"><a class="hide-if-no-js" href="javascript:void(0);" onclick="safe_report_comments_flag_comment( \'' . $comment_id . '\', \'' . $nonce . '\', \'' . $result_id . '\');">' . __( $text ) . '</a></span>' );
+			<span id="' . $result_id . '"><a class="hide-if-no-js" href="javascript:void(0);" onclick="safe_report_comments_flag_comment( \'' . $comment_id . '\', \'' . $nonce . '\', \'' . $result_id . '\');">' . esc_html( $text ) . '</a></span>' );
 
 		}
 
@@ -645,7 +656,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 					if ( $already_reported > 0 ) {
 						$reports = (int) $already_reported;
 					}
-					echo $reports;
+					echo esc_html( $reports );
 					break;
 				default:
 					break;
