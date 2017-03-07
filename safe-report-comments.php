@@ -66,35 +66,37 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 *
 		 * @var $thank_you_message
 		 */
-		public $thank_you_message       = 'Thank you for your feedback. We will look into it.';
+		public $thank_you_message       = '';
 
 		/**
 		 * Invalid nonce message
 		 *
 		 * @var $invalid_nonce_message
 		 */
-		public $invalid_nonce_message   = 'It seems you already reported this comment.';
+		public $invalid_nonce_message   = '';
 
 		/**
 		 * Invalid values message
 		 *
 		 * @var $invalid_values_message
 		 */
-		public $invalid_values_message  = 'Cheating huh?';
+		public $invalid_values_message  = '';
 
 		/**
 		 * Already flagged message
 		 *
 		 * @var $already_flagged_message
 		 */
-		public $already_flagged_message = 'It seems you already reported this comment.';
+		public $already_flagged_message = '';
 
 		/**
 		 * Already flagged note
 		 *
+		 * Displayed instead of the report link when a comment was flagged.
+		 *
 		 * @var $already_flagged_note
 		 */
-		public $already_flagged_note    = ''; // displayed instead of the report link when a comment was flagged.
+		public $already_flagged_note    = '';
 
 		/**
 		 * Filter vars
@@ -159,6 +161,11 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 				add_action( 'admin_init', array( $this, 'backend_init' ) );
 			}
 			add_action( 'comment_unapproved_to_approved', array( $this, 'mark_comment_moderated' ), 10, 1 );
+
+			$this->thank_you_message       = __( 'Thank you for your feedback. We will look into it.' );
+			$this->invalid_nonce_message   = __( 'It seems you already reported this comment.' );
+			$this->invalid_values_message  = __( 'Cheating huh?' );
+			$this->already_flagged_message = __( 'It seems you already reported this comment.' );
 
 			// apply some filters to easily alter the frontend messages.
 			// add_filter( 'safe_report_comments_thank_you_message', 'alter_message' );
