@@ -8,6 +8,7 @@
  * Version: 0.4.1
  * Author: Thorsten Ott, Daniel Bachhuber, Automattic
  * Author URI: http://automattic.com
+ * Text Domain: safe-report-comments
  *
  * @package Safe_Report_Commments
  */
@@ -162,10 +163,10 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 			}
 			add_action( 'comment_unapproved_to_approved', array( $this, 'mark_comment_moderated' ), 10, 1 );
 
-			$this->thank_you_message       = __( 'Thank you for your feedback. We will look into it.' );
-			$this->invalid_nonce_message   = __( 'It seems you already reported this comment.' );
-			$this->invalid_values_message  = __( 'Cheating huh?' );
-			$this->already_flagged_message = __( 'It seems you already reported this comment.' );
+			$this->thank_you_message       = __( 'Thank you for your feedback. We will look into it.', 'safe-report-comments' );
+			$this->invalid_nonce_message   = __( 'It seems you already reported this comment.', 'safe-report-comments' );
+			$this->invalid_values_message  = __( 'Cheating huh?', 'safe-report-comments' );
+			$this->already_flagged_message = __( 'It seems you already reported this comment.', 'safe-report-comments' );
 
 			// apply some filters to easily alter the frontend messages.
 			// add_filter( 'safe_report_comments_thank_you_message', 'alter_message' );
@@ -190,14 +191,14 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		public function backend_init() {
 			do_action( 'safe_report_comments_backend_init' );
 
-			add_settings_field( $this->_plugin_prefix . '_enabled', __( 'Allow comment flagging' ), array( $this, 'comment_flag_enable' ), 'discussion', 'default' );
+			add_settings_field( $this->_plugin_prefix . '_enabled', __( 'Allow comment flagging', 'safe-report-comments' ), array( $this, 'comment_flag_enable' ), 'discussion', 'default' );
 			register_setting( 'discussion', $this->_plugin_prefix . '_enabled' );
 
 			if ( ! $this->is_enabled() ) {
 				return;
 			}
 
-			add_settings_field( $this->_plugin_prefix . '_threshold', __( 'Flagging threshold' ), array( $this, 'comment_flag_threshold' ), 'discussion', 'default' );
+			add_settings_field( $this->_plugin_prefix . '_threshold', __( 'Flagging threshold', 'safe-report-comments' ), array( $this, 'comment_flag_threshold' ), 'discussion', 'default' );
 			register_setting( 'discussion', $this->_plugin_prefix . '_threshold', array( $this, 'check_threshold' ) );
 			add_filter( 'manage_edit-comments_columns', array( $this, 'add_comment_reported_column' ) );
 			add_action( 'manage_comments_custom_column', array( $this, 'manage_comment_reported_column' ), 10, 2 );
@@ -320,7 +321,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 			?>
 			<label for="<?php echo esc_attr( $this->_plugin_prefix ); ?>_enabled">
 				<input name="<?php echo esc_attr( $this->_plugin_prefix ); ?>_enabled" id="<?php echo esc_attr( $this->_plugin_prefix ); ?>_enabled" type="checkbox" value="1" <?php checked( $enabled ); ?> />
-				<?php esc_html_e( 'Allow your visitors to flag a comment as inappropriate.' ); ?>
+				<?php esc_html_e( 'Allow your visitors to flag a comment as inappropriate.', 'safe-report-comments' ); ?>
 			</label>
 			<?php
 		}
@@ -333,7 +334,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 			?>
 			<label for="<?php echo esc_attr( $this->_plugin_prefix ); ?>_threshold">
 				<input size="2" name="<?php echo esc_attr( $this->_plugin_prefix ); ?>_threshold" id="<?php echo esc_attr( $this->_plugin_prefix ); ?>_threshold" type="text" value="<?php echo esc_attr( $threshold ); ?>" />
-				<?php esc_html_e( 'Amount of user reports needed to send a comment to moderation?' ); ?>
+				<?php esc_html_e( 'Amount of user reports needed to send a comment to moderation?', 'safe-report-comments' ); ?>
 			</label>
 			<?php
 		}
@@ -359,7 +360,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 */
 		public function check_threshold( $value ) {
 			if ( (int) $value <= 0 || (int) $value > 100 ) {
-				$this->add_admin_notice( __( 'Please revise your flagging threshold and enter a number between 1 and 100' ) );
+				$this->add_admin_notice( __( 'Please revise your flagging threshold and enter a number between 1 and 100' ), 'safe-report-comments' );
 			}
 			return (int) $value;
 		}
@@ -530,7 +531,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 */
 		private function cond_die( $message ) {
 			if ( isset( $_REQUEST['no_js'] ) && true == (boolean) $_REQUEST['no_js'] ) {
-				wp_die( esc_html( $message ), esc_html__( 'Safe Report Comments Notice' ), array( 'response' => 200 ) );
+				wp_die( esc_html( $message ), esc_html__( 'Safe Report Comments Notice', 'safe-report-comments' ), array( 'response' => 200 ) );
 			} else {
 				die( esc_html( $message ) );
 			}
@@ -572,7 +573,8 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 * @param int    $result_id {unknown}.
 		 * @param string $text {unknown}.
 		 */
-		public function print_flagging_link( $comment_id = '', $result_id = '', $text = 'Report comment' ) {
+		public function print_flagging_link( $comment_id = '', $result_id = '', $text = false ) {
+			$text = $text ?: __( 'Report comment', 'safe-report-comments' );
 			echo wp_kses( $this->get_flagging_link( $comment_id, $result_id, $text ) );
 		}
 
@@ -583,17 +585,17 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 * @param int    $result_id {unknown}.
 		 * @param string $text {unknown}.
 		 */
-		public function get_flagging_link( $comment_id = '', $result_id = '', $text = 'Report comment' ) {
+		public function get_flagging_link( $comment_id = '', $result_id = '', $text = false ) {
 			global $in_comment_loop;
 			if ( empty( $comment_id ) && ! $in_comment_loop ) {
-				return __( 'Wrong usage of print_flagging_link().' );
+				return __( 'Wrong usage of print_flagging_link().', 'safe-report-comments' );
 			}
 			if ( empty( $comment_id ) ) {
 				$comment_id = get_comment_ID();
 			} else {
 				$comment_id = (int) $comment_id;
 				if ( ! get_comment( $comment_id ) ) {
-					return __( 'This comment does not exist.' );
+					return __( 'This comment does not exist.', 'safe-report-comments' );
 				}
 			}
 			if ( empty( $result_id ) ) {
@@ -601,6 +603,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 			}
 
 			$result_id = apply_filters( 'safe_report_comments_result_id', $result_id );
+			$text = $text ?: __( 'Report comment', 'safe-report-comments' );
 			$text = apply_filters( 'safe_report_comments_flagging_link_text', $text );
 
 			$nonce = wp_create_nonce( $this->_plugin_prefix . '_' . $this->_nonce_key );
@@ -645,7 +648,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 * @return array {unknown}.
 		 */
 		public function add_comment_reported_column( $comment_columns ) {
-			$comment_columns['comment_reported'] = _x( 'Reported', 'column name' );
+			$comment_columns['comment_reported'] = _x( 'Reported', 'column name', 'safe-report-comments' );
 			return $comment_columns;
 		}
 
