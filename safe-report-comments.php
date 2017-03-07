@@ -513,7 +513,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 			// we will not flag a comment twice. the moderator is the boss here.
 			$already_reported = get_comment_meta( $comment_id, $this->_plugin_prefix . '_reported', true );
 			$already_moderated = get_comment_meta( $comment_id, $this->_plugin_prefix . '_moderated', true );
-			if ( true == $already_reported && true == $already_moderated ) {
+			if ( true === $already_reported && true === $already_moderated ) {
 				// But maybe the boss wants to allow comments to be reflagged.
 				if ( ! apply_filters( 'safe_report_comments_allow_moderated_to_be_reflagged', false ) ) {
 					return;
@@ -532,7 +532,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 * @param string $message Text string for body.
 		 */
 		private function cond_die( $message ) {
-			if ( isset( $_REQUEST['no_js'] ) && true == (boolean) $_REQUEST['no_js'] ) {
+			if ( isset( $_REQUEST['no_js'] ) && true === (boolean) $_REQUEST['no_js'] ) {
 				wp_die( esc_html( $message ), esc_html__( 'Safe Report Comments Notice', 'safe-report-comments' ), array( 'response' => 200 ) );
 			} else {
 				die( esc_html( $message ) );
