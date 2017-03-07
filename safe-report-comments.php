@@ -73,28 +73,28 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 *
 		 * @var $invalid_nonce_message
 		 */
-		public $invalid_nonce_message   = 'It seems you already reported this comment. <!-- nonce invalid -->';
+		public $invalid_nonce_message   = 'It seems you already reported this comment.';
 
 		/**
 		 * Invalid values message
 		 *
 		 * @var $invalid_values_message
 		 */
-		public $invalid_values_message  = 'Cheating huh? <!-- invalid values -->';
+		public $invalid_values_message  = 'Cheating huh?';
 
 		/**
 		 * Already flagged message
 		 *
 		 * @var $already_flagged_message
 		 */
-		public $already_flagged_message = 'It seems you already reported this comment. <!-- already flagged -->';
+		public $already_flagged_message = 'It seems you already reported this comment.';
 
 		/**
 		 * Already flagged note
 		 *
 		 * @var $already_flagged_note
 		 */
-		public $already_flagged_note    = '<!-- already flagged -->'; // displayed instead of the report link when a comment was flagged.
+		public $already_flagged_note    = ''; // displayed instead of the report link when a comment was flagged.
 
 		/**
 		 * Filter vars
