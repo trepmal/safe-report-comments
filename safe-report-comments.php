@@ -145,7 +145,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * __construct
 		 *
-		 * @param bool $auto_init {unknown}.
+		 * @param bool $auto_init Automatically add the flagging link.
 		 */
 		public function __construct( $auto_init = true ) {
 
@@ -289,7 +289,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * Add admin error messages
 		 *
-		 * @param string $message {unknown}.
+		 * @param string $message Text of admin notice.
 		 */
 		protected function add_admin_notice( $message ) {
 			$this->_admin_notices[] = $message;
@@ -355,8 +355,8 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * Validate threshold, callback for settings field
 		 *
-		 * @param int $value {unknown}.
-		 * @return int {unknown}.
+		 * @param string $value Submitted threshold value.
+		 * @return int Validated threshold value.
 		 */
 		public function check_threshold( $value ) {
 			if ( (int) $value <= 0 || (int) $value > 100 ) {
@@ -368,7 +368,8 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * Helper function to serialize cookie values
 		 *
-		 * @param string $value {unknown}.
+		 * @param array $value Cookie data.
+		 * @return string Serialized cookie data.
 		 */
 		private function serialize_cookie( $value ) {
 			$value = $this->clean_cookie_data( $value );
@@ -378,7 +379,8 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * Helper function to unserialize cookie values
 		 *
-		 * @param string $value {unknown}.
+		 * @param string $value Raw cookie data.
+		 * @return array Cleansed data.
 		 */
 		private function unserialize_cookie( $value ) {
 			$data = json_decode( base64_decode( $value ) );
@@ -388,8 +390,8 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * Clean cookie data
 		 *
-		 * @param array $data {unknown}.
-		 * @return array {unknown}.
+		 * @param array $data Cookie data.
+		 * @return array Cleansed data.
 		 */
 		private function clean_cookie_data( $data ) {
 			$clean_data = array();
@@ -411,7 +413,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 * Mark a comment as being moderated so it will not be autoflagged again
 		 * called via comment transient from unapproved to approved
 		 *
-		 * @param object $comment {unknown}.
+		 * @param object $comment Comment object.
 		 */
 		public function mark_comment_moderated( $comment ) {
 			if ( isset( $comment->comment_ID ) ) {
@@ -422,8 +424,8 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * Check if this comment was flagged by the user before
 		 *
-		 * @param int $comment_id {unknown}.
-		 * @return bool {unknown}.
+		 * @param int $comment_id The comment ID.
+		 * @return bool Whether the comment is already flagged or not.
 		 */
 		public function already_flagged( $comment_id ) {
 
@@ -461,7 +463,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * Report a comment and send it to moderation if threshold is reached
 		 *
-		 * @param int $comment_id {unknown}.
+		 * @param int $comment_id The comment ID.
 		 */
 		public function mark_flagged( $comment_id ) {
 			$data = array();
@@ -527,7 +529,7 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * Die() with or without screen based on JS availability
 		 *
-		 * @param string $message {unknown}.
+		 * @param string $message Text string for body.
 		 */
 		private function cond_die( $message ) {
 			if ( isset( $_REQUEST['no_js'] ) && true == (boolean) $_REQUEST['no_js'] ) {
@@ -569,9 +571,11 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * Print flagging link
 		 *
-		 * @param int    $comment_id {unknown}.
+		 * Hooked into comment_report_abuse_link action allowing use via do_action instead of template tag
+		 *
+		 * @param int    $comment_id The current comment ID.
 		 * @param int    $result_id {unknown}.
-		 * @param string $text {unknown}.
+		 * @param string $text Link text.
 		 */
 		public function print_flagging_link( $comment_id = '', $result_id = '', $text = false ) {
 			$text = $text ?: __( 'Report comment', 'safe-report-comments' );
@@ -581,9 +585,10 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * Output Link to report a comment
 		 *
-		 * @param int    $comment_id {unknown}.
+		 * @param int    $comment_id The current comment ID.
 		 * @param int    $result_id {unknown}.
-		 * @param string $text {unknown}.
+		 * @param string $text Link text.
+		 * @return string The HTML markup for the link.
 		 */
 		public function get_flagging_link( $comment_id = '', $result_id = '', $text = false ) {
 			global $in_comment_loop;
@@ -634,8 +639,8 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		 * If you want to control the placement on your own define no_autostart_safe_report_comments in your functions.php file and initialize the class
 		 * with $safe_report_comments = new Safe_Report_Comments( $auto_init = false );
 		 *
-		 * @param string $comment_reply_link {unknown}.
-		 * @return string {unknown}.
+		 * @param string $comment_reply_link The HTML markup for the comment reply link.
+		 * @return string The new HTML markup for the comment reply link.
 		 */
 		public function add_flagging_link( $comment_reply_link ) {
 			if ( ! preg_match_all( '#^(.*)(<a.+class=["|\']comment-(reply|login)-link["|\'][^>]+>)(.+)(</a>)(.*)$#msiU', $comment_reply_link, $matches ) ) {
@@ -649,8 +654,8 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * Callback function to add the report counter to comments screen. Remove action manage_edit-comments_columns if not desired
 		 *
-		 * @param array $comment_columns {unknown}.
-		 * @return array {unknown}.
+		 * @param array $comment_columns An array of column headers.
+		 * @return array An array of column headers.
 		 */
 		public function add_comment_reported_column( $comment_columns ) {
 			$comment_columns['comment_reported'] = _x( 'Reported', 'column name', 'safe-report-comments' );
@@ -660,8 +665,8 @@ if ( ! class_exists( 'Safe_Report_Comments' ) ) {
 		/**
 		 * Callback function to handle custom column. remove action manage_comments_custom_column if not desired
 		 *
-		 * @param string $column_name {unknown}.
-		 * @param int    $comment_id {unknown}.
+		 * @param string $column_name The name of the column to display.
+		 * @param int    $comment_id The current comment ID.
 		 */
 		public function manage_comment_reported_column( $column_name, $comment_id ) {
 			switch ( $column_name ) {
